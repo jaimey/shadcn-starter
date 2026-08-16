@@ -400,7 +400,8 @@ aunque este starter no tenga gráficas.
 
 ### Selector de tema
 
-`src/lib/theme.tsx` expone `ThemeProvider` y el hook `useTheme()`, con
+`src/components/theme-provider.tsx` —que ya viene con la plantilla de Vite y se adapta en
+lugar de escribir otro— expone `ThemeProvider` y el hook `useTheme()`, con
 `theme: "light" | "dark" | "system"` y `setTheme()`. El provider guarda la preferencia
 en `localStorage` bajo una clave propia y mantiene la clase `dark` del elemento `<html>`
 en sincronía. Con `system`, escucha `matchMedia("(prefers-color-scheme: dark)")` y
@@ -433,14 +434,14 @@ src/
   components/ui/          primitivos de shadcn
   components/             app-sidebar, nav-main, nav-user,
                           site-header, protected-route,
-                          data-table
+                          data-table, theme-provider
   components/users/       columns.tsx
   components/api-keys/    columns.tsx, create-key-dialog.tsx
   layouts/                app-layout.tsx
   pages/                  login-page, dashboard-page,
                           users-page, api-keys-page, profile-page
   data/                   users.ts, api-keys.ts, nav.ts
-  lib/                    auth.tsx, theme.tsx, utils.ts
+  lib/                    auth.tsx, utils.ts
   app.tsx
   main.tsx
 ```

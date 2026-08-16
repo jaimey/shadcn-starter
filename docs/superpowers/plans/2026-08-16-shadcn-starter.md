@@ -57,7 +57,7 @@ Rutas relativas a la raíz del repo. `src/` y el prefijo de alias se confirman e
 | Fichero | Responsabilidad |
 |---|---|
 | `src/lib/auth.tsx` | `AuthProvider` + `useAuth()`. Sesión simulada en `localStorage`. |
-| `src/lib/theme.tsx` | `ThemeProvider` + `useTheme()`. Preferencia de tema en `localStorage`. |
+| `src/components/theme-provider.tsx` | `ThemeProvider` + `useTheme()`. Lo trae la plantilla; la Tarea 12 lo adapta. |
 | `src/lib/utils.ts` | `cn()`. Lo genera la CLI. |
 | `src/data/users.ts` | Tipo `User`, array mock, `DEMO_CREDENTIALS`. |
 | `src/data/api-keys.ts` | Tipo `ApiKey`, array mock. |
@@ -512,6 +512,7 @@ cd /Users/jaime/Herd/shadcn-starter && git add -A && git commit -m "feat: add mo
 - Create: `src/lib/auth.tsx`
 - Create: `src/components/protected-route.tsx`
 - Create: `src/app.tsx`
+- Delete: `src/App.tsx` (el de la plantilla)
 - Modify: `src/main.tsx`
 - Create: `src/pages/login-page.tsx`, `src/pages/dashboard-page.tsx`, `src/pages/users-page.tsx`, `src/pages/api-keys-page.tsx`, `src/pages/profile-page.tsx` (versiones mínimas)
 - Create: `src/layouts/app-layout.tsx` (versión mínima)
@@ -679,7 +680,12 @@ export function AppLayout() {
 }
 ```
 
-- [ ] **Step 4: Crear `src/app.tsx`**
+- [ ] **Step 4: Crear `src/app.tsx` y eliminar `src/App.tsx`**
+
+La plantilla dejó un `src/App.tsx` de demostración. El nuevo fichero de rutas se llama
+`src/app.tsx`, y en macOS el sistema de ficheros no distingue mayúsculas: los dos nombres
+colisionan. Elimina primero el de la plantilla con `git rm src/App.tsx` y crea después el
+nuevo. No basta con sobrescribir.
 
 ```tsx
 import { Navigate, Route, Routes } from "react-router"
@@ -717,12 +723,14 @@ La ruta comodín cubre también `/`: sin sesión, `ProtectedRoute` la reconduce 
 
 - [ ] **Step 5: Reescribir `src/main.tsx`**
 
-Conserva el import del CSS global tal y como lo generó la CLI — la ruta puede no ser `./index.css`.
+`main.tsx` ya envuelve la aplicación en el `ThemeProvider` que trae la plantilla. **Ese
+provider se conserva** — la Tarea 12 lo adapta en lugar de escribir otro. No lo quites.
 
 ```tsx
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import { BrowserRouter } from "react-router"
+import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
 import { AuthProvider } from "@/lib/auth"
 import { App } from "@/app"
@@ -730,12 +738,14 @@ import "./index.css"
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <BrowserRouter>
-      <AuthProvider>
-        <App />
-        <Toaster />
-      </AuthProvider>
-    </BrowserRouter>
+    <ThemeProvider>
+      <BrowserRouter>
+        <AuthProvider>
+          <App />
+          <Toaster />
+        </AuthProvider>
+      </BrowserRouter>
+    </ThemeProvider>
   </StrictMode>,
 )
 ```
@@ -2537,122 +2547,87 @@ cd /Users/jaime/Herd/shadcn-starter && git add -A && git commit -m "feat: add pr
 ### Task 12: Selector de tema
 
 **Files:**
-- Create: `src/lib/theme.tsx`
-- Modify: `src/main.tsx`
+- Modify: `src/components/theme-provider.tsx`
+- Modify: `src/components/ui/sonner.tsx`
+- Modify: `package.json` (eliminar `next-themes`)
 - Modify: `index.html`
 - Modify: `src/pages/profile-page.tsx`
 
 **Interfaces:**
 - Consumes: `ProfilePage` de la Tarea 11
 - Produces:
-  - `ThemeProvider` (componente con `children`)
-  - `useTheme(): { theme: Theme; setTheme(theme: Theme): void }` con `type Theme = "light" | "dark" | "system"`
+  - `ThemeProvider` y `useTheme(): { theme: Theme; setTheme(theme: Theme): void }`,
+    ambos exportados desde `@/components/theme-provider`, con
+    `type Theme = "light" | "dark" | "system"`
 
-- [ ] **Step 1: Crear `src/lib/theme.tsx`**
+> **Cambio respecto al plan original.** La plantilla de Vite ya trae
+> `src/components/theme-provider.tsx`, un provider completo con persistencia en
+> `localStorage`, escucha de `prefers-color-scheme`, sincronización entre pestañas y
+> supresión de transiciones al cambiar. Hace todo lo que este plan iba a escribir en
+> `src/lib/theme.tsx`, y mejor. **Se adopta el existente**: no se crea `src/lib/theme.tsx`.
+> Esta tarea lo adapta a la spec y lo conecta.
 
-El valor por defecto es `light`, no `system`: sin preferencia guardada la aplicación arranca en claro aunque el sistema esté en oscuro.
+- [ ] **Step 1: Adaptar `src/components/theme-provider.tsx`**
+
+Tres cambios, ninguno más. No reescribas el fichero.
+
+1. **Tema por defecto claro.** El provider declara `defaultTheme = "system"`. La spec exige
+   claro: cámbialo a `defaultTheme = "light"`, de modo que sin preferencia guardada la
+   aplicación arranque en claro aunque el sistema operativo esté en oscuro.
+2. **Eliminar el atajo de teclado.** El provider registra un listener global de `keydown`
+   que alterna el tema al pulsar `d`. No está en la spec y el humano decidió quitarlo: una
+   tecla sin modificador cambia el tema sin querer. Elimina ese `useEffect` completo y las
+   funciones que solo él usaba (`isEditableTarget`). Deja intactos los otros dos `useEffect`
+   (aplicación del tema y sincronización entre pestañas).
+3. **Exportar el tipo `Theme`.** Está declarado como `type Theme = "dark" | "light" | "system"`
+   pero sin `export`, y el Step 4 lo necesita para tipar el `ToggleGroup`. Añádele `export`.
+4. **Nada más.** La persistencia, la clave `storageKey = "theme"`, la escucha del sistema y
+   la supresión de transiciones se conservan tal cual.
+
+- [ ] **Step 2: Conectar `sonner` al provider del proyecto**
+
+`src/components/ui/sonner.tsx` viene del registro de shadcn importando `useTheme` de
+`next-themes`, una librería de Next.js que el proyecto no usa y que la spec no contempla.
+Ese import arrastró `next-themes` a `package.json`.
+
+Cambia el import para que use el provider del proyecto:
 
 ```tsx
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react"
-import type { ReactNode } from "react"
-
-export type Theme = "light" | "dark" | "system"
-
-const STORAGE_KEY = "shadcn-starter.theme"
-const DEFAULT_THEME: Theme = "light"
-
-type ThemeContextValue = {
-  theme: Theme
-  setTheme: (theme: Theme) => void
-}
-
-const ThemeContext = createContext<ThemeContextValue | null>(null)
-
-function readStoredTheme(): Theme {
-  const stored = window.localStorage.getItem(STORAGE_KEY)
-  if (stored === "light" || stored === "dark" || stored === "system") {
-    return stored
-  }
-  return DEFAULT_THEME
-}
-
-function prefersDark() {
-  return window.matchMedia("(prefers-color-scheme: dark)").matches
-}
-
-function applyTheme(theme: Theme) {
-  const isDark = theme === "dark" || (theme === "system" && prefersDark())
-  document.documentElement.classList.toggle("dark", isDark)
-}
-
-export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>(readStoredTheme)
-
-  useEffect(() => {
-    applyTheme(theme)
-  }, [theme])
-
-  useEffect(() => {
-    if (theme !== "system") return
-    const media = window.matchMedia("(prefers-color-scheme: dark)")
-    const onChange = () => applyTheme("system")
-    media.addEventListener("change", onChange)
-    return () => media.removeEventListener("change", onChange)
-  }, [theme])
-
-  const setTheme = useCallback((next: Theme) => {
-    window.localStorage.setItem(STORAGE_KEY, next)
-    setThemeState(next)
-  }, [])
-
-  const value = useMemo(() => ({ theme, setTheme }), [theme, setTheme])
-
-  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
-}
-
-export function useTheme() {
-  const context = useContext(ThemeContext)
-  if (!context) {
-    throw new Error("useTheme debe usarse dentro de un ThemeProvider.")
-  }
-  return context
-}
+import { useTheme } from "@/components/theme-provider"
 ```
 
-- [ ] **Step 2: Añadir el script anti-parpadeo a `index.html`**
+El resto del fichero no cambia: `useTheme()` sigue devolviendo `{ theme }` con los mismos
+tres valores posibles, que es lo que `Sonner` espera en su prop `theme`.
 
-Va dentro de `<head>`, antes de cualquier `<script type="module">`. Sin preferencia guardada no hace nada, así que el documento arranca en claro.
+Después desinstala la dependencia y comprueba que no queda ninguna referencia:
+
+```bash
+cd /Users/jaime/Herd/shadcn-starter && npm uninstall next-themes && grep -rn "next-themes" src/ package.json || echo "sin referencias"
+```
+
+- [ ] **Step 3: Añadir el script anti-parpadeo a `index.html`**
+
+Va dentro de `<head>`, antes de cualquier `<script type="module">`. La clave de
+`localStorage` debe ser exactamente la del provider (`theme`); si no coinciden, el script
+no hace nada útil.
+
+El provider añade al elemento `<html>` la clase `light` o `dark` según el tema resuelto,
+así que el script debe hacer lo mismo para que no haya salto al montar React.
 
 ```html
 <script>
   (function () {
-    var stored = localStorage.getItem("shadcn-starter.theme")
+    var stored = localStorage.getItem("theme")
     var isDark =
       stored === "dark" ||
       (stored === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches)
-    if (isDark) document.documentElement.classList.add("dark")
+    document.documentElement.classList.add(isDark ? "dark" : "light")
   })()
 </script>
 ```
 
-- [ ] **Step 3: Envolver la aplicación en `src/main.tsx`**
-
-Añade el import y el provider por fuera de `AuthProvider`:
-
-```tsx
-import { ThemeProvider } from "@/lib/theme"
-```
-
-```tsx
-<BrowserRouter>
-  <ThemeProvider>
-    <AuthProvider>
-      <App />
-      <Toaster />
-    </AuthProvider>
-  </ThemeProvider>
-</BrowserRouter>
-```
+Sin preferencia guardada el script aplica `light`, que es el valor por defecto exigido por
+la spec.
 
 - [ ] **Step 4: Añadir la card *Apariencia* a `src/pages/profile-page.tsx`**
 
@@ -2661,7 +2636,7 @@ Va entre la card de contraseña y la de información de la cuenta. Añade los im
 ```tsx
 import { Field, FieldDescription, FieldGroup, FieldLabel, FieldTitle } from "@/components/ui/field"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
-import { useTheme, type Theme } from "@/lib/theme"
+import { useTheme, type Theme } from "@/components/theme-provider"
 ```
 
 Dentro del componente, junto a los dos `useForm` y **antes** del `if (!user) return null`
@@ -2716,7 +2691,9 @@ En el navegador:
 3. Recargar mantiene el tema oscuro y **no hay fogonazo blanco** al cargar.
 4. Pulsar *Sistema* adopta la preferencia del SO.
 5. Cerrar sesión y volver a `/login` conserva el tema elegido.
-6. Recorre las cinco pantallas en oscuro y comprueba que ningún texto queda ilegible ni ningún borde desaparece.
+6. Pulsar la tecla `d` fuera de un campo de texto **no** hace nada: el atajo debe estar eliminado.
+7. Un toast (por ejemplo, el de una acción en la tabla de usuarios) se ve correctamente en tema oscuro — comprueba que `sonner` sigue el tema tras cambiarle el import.
+8. Recorre las cinco pantallas en oscuro y comprueba que ningún texto queda ilegible ni ningún borde desaparece.
 
 - [ ] **Step 6: Commit**
 
