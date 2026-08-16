@@ -22,7 +22,7 @@ Estas decisiones resuelven ambigüedades de la spec original. Son vinculantes.
 | Primitivos (`base`) | `radix` |
 | Preset visual | `lyra`, con la paleta sustituida por el tema de la sección 9 |
 | Contenido del Dashboard | Placeholders vacíos, sin datos ni gráficas |
-| Tabla de usuarios | TanStack Table (`@tanstack/react-table`) |
+| Tabla de usuarios | TanStack Table, fijada a `@tanstack/react-table@^8` |
 | Formularios | react-hook-form + zod, renderizados con primitivos `Field` |
 | Sesión | Persistida en `localStorage`; sobrevive al refresco |
 | Acciones sobre usuarios | Decorativas: disparan un toast, no mutan datos |
@@ -44,7 +44,9 @@ Dependencias adicionales, cada una justificada por una decisión de arriba:
 
 - `react-router` — navegación y rutas protegidas
 - `react-hook-form`, `zod`, `@hookform/resolvers` — formularios y validación
-- `@tanstack/react-table` — tablas de usuarios y de API keys
+- `@tanstack/react-table@^8` — tablas de usuarios y de API keys. Fijada a la v8 a
+  propósito: la v9 marca como `@deprecated` la API que usa este diseño y su alternativa
+  nativa no coincide con la documentación de shadcn.
 - `sonner` — toasts (obligatorio por usar base `radix`)
 - `lucide-react` — iconos
 

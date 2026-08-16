@@ -6,7 +6,7 @@
 
 **Architecture:** SPA de Vite + React con react-router. Un `AuthProvider` y un `ThemeProvider` en la raíz; rutas privadas envueltas en `ProtectedRoute`; un `AppLayout` con el sidebar de `@shadcn/sidebar-07` que renderiza las páginas en un `<Outlet/>`. Los datos mock se importan directamente desde las páginas: sin capa de servicios ni repositorios. La única abstracción compartida es un `DataTable` genérico, justificado por las dos tablas reales que lo consumen.
 
-**Tech Stack:** Vite, React 19, TypeScript, Tailwind CSS v4, shadcn/ui (`base: radix`, preset `lyra`), react-router, react-hook-form, zod, @tanstack/react-table, sonner, lucide-react.
+**Tech Stack:** Vite, React 19, TypeScript, Tailwind CSS v4, shadcn/ui (`base: radix`, preset `lyra`), react-router, react-hook-form, zod, @tanstack/react-table (fijada a la v8), sonner, lucide-react.
 
 **Spec:** [docs/superpowers/specs/2026-08-16-shadcn-starter-design.md](../specs/2026-08-16-shadcn-starter-design.md)
 
@@ -302,14 +302,14 @@ Instalar de una vez todo lo que consumen las tareas siguientes.
 
 **Interfaces:**
 - Consumes: proyecto inicializado de la Tarea 1
-- Produces: componentes shadcn instalados y las dependencias `react-router`, `react-hook-form`, `zod`, `@hookform/resolvers`, `@tanstack/react-table` disponibles
+- Produces: componentes shadcn instalados y las dependencias `react-router`, `react-hook-form`, `zod`, `@hookform/resolvers`, `@tanstack/react-table@^8` disponibles
 
 - [ ] **Step 1: Instalar dependencias de aplicación**
 
 Usa el gestor que reportó `packageManager` en la Tarea 1. Con npm:
 
 ```bash
-cd /Users/jaime/Herd/shadcn-starter && npm install react-router react-hook-form zod @hookform/resolvers @tanstack/react-table
+cd /Users/jaime/Herd/shadcn-starter && npm install react-router react-hook-form zod @hookform/resolvers @tanstack/react-table@^8
 ```
 
 - [ ] **Step 2: Añadir los bloques oficiales**
@@ -2753,7 +2753,7 @@ demo1234
 - Vite + React + TypeScript
 - Tailwind CSS v4
 - shadcn/ui (`base: radix`, preset `lyra`)
-- react-router, react-hook-form + zod, @tanstack/react-table, sonner
+- react-router, react-hook-form + zod, @tanstack/react-table v8, sonner
 
 ## Estructura
 
