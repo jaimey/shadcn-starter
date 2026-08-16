@@ -29,6 +29,7 @@ Estas decisiones resuelven ambigüedades de la spec original. Son vinculantes.
 | Módulo de API keys | Crear (con revelado único del token) y revocar, sobre estado local |
 | Atributos de API key | Base, sin permisos ni entorno |
 | Selector de tema | Card *Apariencia* en Perfil: Claro / Oscuro / Sistema |
+| Tema por defecto | Claro, siempre, incluso si el sistema operativo está en oscuro |
 | Idioma de la UI | Español |
 | Tests | Ninguno |
 | Estructura de carpetas | Por tipo (`pages/`, `components/`, `data/`, `lib/`) |
@@ -398,9 +399,15 @@ en `localStorage` bajo una clave propia y mantiene la clase `dark` del elemento 
 en sincronía. Con `system`, escucha `matchMedia("(prefers-color-scheme: dark)")` y
 reacciona a los cambios del sistema operativo en caliente.
 
-Para evitar el parpadeo de tema claro al cargar, `index.html` incluye un script inline
-mínimo que lee la preferencia de `localStorage` y aplica la clase antes de que React
-monte.
+**El tema por defecto es siempre claro.** Sin preferencia guardada, el provider arranca
+en `light`, aunque el sistema operativo esté en oscuro. Solo se aplica el tema oscuro
+cuando el usuario lo elige explícitamente, o cuando elige `system` y su sistema está en
+oscuro.
+
+Para evitar un parpadeo al cargar con el tema oscuro guardado, `index.html` incluye un
+script inline mínimo que lee la preferencia de `localStorage` y aplica la clase antes
+de que React monte. Sin preferencia guardada, ese script no hace nada: el documento se
+queda en claro.
 
 En la interfaz, la card *Apariencia* del perfil contiene un
 `Field orientation="horizontal"` con `FieldTitle` y un `ToggleGroup type="single"` con
