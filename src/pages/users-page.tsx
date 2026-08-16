@@ -3,9 +3,9 @@ import {
   getCoreRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  useLegacyTable,
-} from "@tanstack/react-table/legacy"
-import type { SortingState } from "@tanstack/react-table"
+  useReactTable,
+  type SortingState,
+} from "@tanstack/react-table"
 import { Search } from "lucide-react"
 import { DataTable } from "@/components/data-table"
 import { userColumns } from "@/components/users/columns"
@@ -45,7 +45,7 @@ export function UsersPage() {
     })
   }, [search, role, status])
 
-  const table = useLegacyTable({
+  const table = useReactTable({
     data: filtered,
     columns: userColumns,
     state: { sorting },
@@ -53,7 +53,7 @@ export function UsersPage() {
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    initialState: { pagination: { pageIndex: 0, pageSize: 10 } },
+    initialState: { pagination: { pageSize: 10 } },
   })
 
   return (

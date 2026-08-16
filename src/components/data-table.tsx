@@ -1,9 +1,4 @@
-import type { LegacyFeatures } from "@tanstack/react-table/legacy"
-import {
-  flexRender,
-  type RowData,
-  type Table as TanstackTable,
-} from "@tanstack/react-table"
+import { flexRender, type Table as TanstackTable } from "@tanstack/react-table"
 import { FileSearch } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -31,14 +26,14 @@ export function formatDate(value: string | null) {
   }).format(new Date(value))
 }
 
-type DataTableProps<TData extends RowData> = {
-  table: TanstackTable<LegacyFeatures, TData>
+type DataTableProps<TData> = {
+  table: TanstackTable<TData>
   columnCount: number
   emptyTitle: string
   emptyDescription: string
 }
 
-export function DataTable<TData extends RowData>({
+export function DataTable<TData>({
   table,
   columnCount,
   emptyTitle,

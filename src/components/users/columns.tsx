@@ -1,5 +1,4 @@
 import type { ColumnDef } from "@tanstack/react-table"
-import type { LegacyFeatures } from "@tanstack/react-table/legacy"
 import { ArrowUpDown, MoreHorizontal } from "lucide-react"
 import { toast } from "sonner"
 import { formatDate } from "@/components/data-table"
@@ -21,7 +20,7 @@ const statusVariant: Record<UserStatus, "default" | "secondary" | "outline"> = {
   Inactivo: "outline",
 }
 
-export const userColumns: ColumnDef<LegacyFeatures, User>[] = [
+export const userColumns: ColumnDef<User>[] = [
   {
     accessorKey: "name",
     header: ({ column }) => (
