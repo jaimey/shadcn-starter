@@ -47,10 +47,7 @@ export function NavUser() {
               <Avatar className="size-8">
                 <AvatarFallback>{initialsOf(user.name)}</AvatarFallback>
               </Avatar>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user.name}</span>
-                <span className="truncate text-xs">{user.email}</span>
-              </div>
+              <span className="truncate text-sm font-medium">{user.name}</span>
               <ChevronsUpDown className="ml-auto" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
@@ -60,6 +57,9 @@ export function NavUser() {
             align="end"
           >
             <DropdownMenuLabel>Mi cuenta</DropdownMenuLabel>
+            <p className="truncate px-2 pb-2 text-xs text-muted-foreground">
+              {user.email}
+            </p>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem asChild>
