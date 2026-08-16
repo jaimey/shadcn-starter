@@ -1,21 +1,61 @@
-# React + TypeScript + Vite + shadcn/ui
+# Starter frontend shadcn/ui
 
-This is a template for a new Vite project with React, TypeScript, and shadcn/ui.
+Plantilla de partida para proyectos frontend: login simulado, layout con sidebar,
+gestión de usuarios, gestión de API keys y perfil de usuario. Todos los datos son
+mock. No hay backend, base de datos ni persistencia real.
 
-## Adding components
+## Requisitos
 
-To add components to your app, run the following command:
+- Node.js 20 o superior
+
+## Arranque
 
 ```bash
-npx shadcn@latest add button
+npm install
+npm run dev
 ```
 
-This will place the ui components in the `src/components` directory.
+## Credenciales de demostración
 
-## Using components
-
-To use the components in your app, import them as follows:
-
-```tsx
-import { Button } from "@/components/ui/button"
 ```
+ana.torres@acme.com
+demo1234
+```
+
+## Stack
+
+- Vite + React + TypeScript
+- Tailwind CSS v4
+- shadcn/ui (`base: radix`, preset `lyra`, con paleta, tipografía e iconos propios
+  sobreescribiendo los del preset)
+- react-router, react-hook-form + zod, `@tanstack/react-table` fijado en v8 (no v9),
+  sonner
+- Iconos con `lucide-react`; tipografía Inter para la interfaz y JetBrains Mono
+  reservada al token de las API keys
+
+## Estructura
+
+```
+src/
+  components/ui/       primitivos de shadcn
+  components/          componentes de la aplicación
+  layouts/             layout autenticado
+  pages/               una por pantalla
+  data/                datos mock
+  lib/                 auth, tema, utilidades
+  hooks/               hooks compartidos
+```
+
+## Tema
+
+Los tokens de color viven en `src/index.css`, en los bloques `:root` y `.dark`.
+Para cambiar la paleta, edita esos valores siguiendo
+[la documentación de theming de shadcn](https://ui.shadcn.com/docs/theming).
+
+El tema por defecto es claro. El usuario puede cambiarlo desde *Perfil → Apariencia*,
+y la preferencia se guarda en `localStorage` bajo la clave `theme`.
+
+## Qué NO incluye
+
+Backend, base de datos, autenticación real, persistencia, tests e i18n. Es un punto de
+partida, no una aplicación terminada.
