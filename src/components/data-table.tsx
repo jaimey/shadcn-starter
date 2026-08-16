@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { flexRender, type Table as TanstackTable } from "@tanstack/react-table"
 import { FileSearch } from "lucide-react"
 import { Button } from "@/components/ui/button"

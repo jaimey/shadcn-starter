@@ -1,7 +1,17 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useCallback, useContext, useMemo, useState } from "react"
 import type { ReactNode } from "react"
 import { DEMO_CREDENTIALS, users, type User } from "@/data/users"
 
+// Autenticación simulada: no hay backend detrás de este módulo. `login`
+// valida contra una credencial fija y guarda el usuario completo —
+// incluido `role`— en localStorage, que aquí actúa como fuente de verdad.
+// Esa entrada es editable desde las devtools, así que `role` es
+// falsificable y jamás debe usarse para autorizar nada en un backend real.
+// Tampoco hay token, expiración ni renovación (la sesión simulada no
+// caduca) ni propagación de `logout` entre pestañas. Al portar esto a un
+// backend real, sustitúyelo por un token emitido por el servidor y valida
+// permisos ahí, no en el cliente.
 const STORAGE_KEY = "shadcn-starter.session"
 const FAKE_LATENCY_MS = 800
 

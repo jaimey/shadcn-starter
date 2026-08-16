@@ -133,10 +133,18 @@ export function CreateKeyDialog({ onCreated }: { onCreated: (key: ApiKey) => voi
       // was in flight. Abandon it silently: no toast, no key, no stale token.
       return
     }
-    const token = generateToken()
+    let token: string
+    try {
+      token = generateToken()
+    } catch {
+      toast.error("No se pudo generar la API key. Inténtalo de nuevo.")
+      return
+    }
     const now = new Date().toISOString()
     onCreated({
-      id: `k-${token.slice(-8)}`,
+      // El id no debe derivarse del secreto: usa un identificador aleatorio
+      // propio en vez de tomar caracteres del token.
+      id: `k-${crypto.randomUUID()}`,
       name: values.name,
       tokenPreview: maskToken(token),
       status: "Activa",
@@ -149,8 +157,14 @@ export function CreateKeyDialog({ onCreated }: { onCreated: (key: ApiKey) => voi
 
   async function copyToken() {
     if (!revealedToken) return
-    await navigator.clipboard.writeText(revealedToken)
-    toast.success("Token copiado al portapapeles.")
+    try {
+      await navigator.clipboard.writeText(revealedToken)
+      toast.success("Token copiado al portapapeles.")
+    } catch {
+      toast.error(
+        "No se pudo copiar el token. Cópialo manualmente del campo antes de cerrar este diálogo.",
+      )
+    }
   }
 
   return (

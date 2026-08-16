@@ -22,6 +22,19 @@ ana.torres@acme.com
 demo1234
 ```
 
+## Autenticación simulada
+
+`src/lib/auth.tsx` no habla con ningún backend: `login` compara contra la
+credencial de demostración y guarda el usuario completo —incluido su
+`role`— en `localStorage`, que aquí hace de fuente de verdad. Esa entrada
+se puede editar a mano desde las devtools, así que `role` es falsificable y
+nunca debe usarse para autorizar nada en una implementación real. Tampoco
+hay token, expiración ni renovación de sesión, ni propagación de `logout`
+entre pestañas. `ProtectedRoute` (en `src/components/protected-route.tsx`)
+solo decide qué renderizar; no es un control de autorización. Antes de
+copiar este proyecto a producción, sustituye este módulo por un flujo con
+token emitido por el servidor y valida los permisos ahí, no en el cliente.
+
 ## Stack
 
 - Vite + React + TypeScript
