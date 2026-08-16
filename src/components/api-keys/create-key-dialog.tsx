@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Copy, Plus, TriangleAlert } from "lucide-react"
@@ -51,11 +51,35 @@ const createKeySchema = z.object({
 
 type CreateKeyValues = z.infer<typeof createKeySchema>
 
+// crypto.getRandomValues yields bytes 0-255, and 256 isn't a multiple of the
+// alphabet's length, so a plain `byte % length` skews the first few
+// characters. Reject any byte at or above the largest multiple of the
+// alphabet length that fits in a byte, and redraw, so every character stays
+// equally likely. The rejection rate is ~1.6% for a 36-character alphabet,
+// so `maxBatches` is a generous safety cap, not a realistic limit.
 function generateToken() {
-  const bytes = new Uint8Array(TOKEN_LENGTH)
-  crypto.getRandomValues(bytes)
-  const body = Array.from(bytes, (byte) => TOKEN_ALPHABET[byte % TOKEN_ALPHABET.length]).join("")
-  return `sk_live_${body}`
+  const alphabetLength = TOKEN_ALPHABET.length
+  const rejectionThreshold = Math.floor(256 / alphabetLength) * alphabetLength
+  const chars: string[] = []
+  let batches = 0
+  const maxBatches = 20
+
+  while (chars.length < TOKEN_LENGTH && batches < maxBatches) {
+    const bytes = new Uint8Array(TOKEN_LENGTH - chars.length)
+    crypto.getRandomValues(bytes)
+    for (const byte of bytes) {
+      if (byte < rejectionThreshold) {
+        chars.push(TOKEN_ALPHABET[byte % alphabetLength])
+      }
+    }
+    batches += 1
+  }
+
+  if (chars.length < TOKEN_LENGTH) {
+    throw new Error("No se pudo generar el token de forma segura.")
+  }
+
+  return `sk_live_${chars.join("")}`
 }
 
 function maskToken(token: string) {
@@ -73,6 +97,10 @@ function expiresAtFrom(expiration: CreateKeyValues["expiration"]) {
 export function CreateKeyDialog({ onCreated }: { onCreated: (key: ApiKey) => void }) {
   const [open, setOpen] = useState(false)
   const [revealedToken, setRevealedToken] = useState<string | null>(null)
+  // Bumped every time the dialog closes, so an in-flight submission started
+  // before the close can tell it was abandoned even if the dialog is
+  // reopened again before the fake latency resolves.
+  const submissionIdRef = useRef(0)
 
   const {
     register,
@@ -91,13 +119,20 @@ export function CreateKeyDialog({ onCreated }: { onCreated: (key: ApiKey) => voi
   function handleOpenChange(next: boolean) {
     setOpen(next)
     if (!next) {
+      submissionIdRef.current += 1
       setRevealedToken(null)
       reset()
     }
   }
 
   async function onSubmit(values: CreateKeyValues) {
+    const submissionId = submissionIdRef.current
     await new Promise((resolve) => setTimeout(resolve, FAKE_LATENCY_MS))
+    if (submissionId !== submissionIdRef.current) {
+      // The dialog was closed (and possibly reopened) while this submission
+      // was in flight. Abandon it silently: no toast, no key, no stale token.
+      return
+    }
     const token = generateToken()
     const now = new Date().toISOString()
     onCreated({
