@@ -1,4 +1,4 @@
-import { LayoutDashboard, Settings, User } from "lucide-react"
+import { LayoutDashboard, Settings } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 
 export type NavItem = {
@@ -19,7 +19,6 @@ export const navMain: NavItem[] = [
       { title: "API Keys", url: "/settings/api-keys" },
     ],
   },
-  { title: "Perfil", url: "/profile", icon: User },
 ]
 
 export const breadcrumbLabels: Record<string, string> = {
