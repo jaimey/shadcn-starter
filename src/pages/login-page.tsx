@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useNavigate } from "react-router"
@@ -12,7 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field"
+import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
 import { DEMO_CREDENTIALS } from "@/data/users"
@@ -33,11 +33,17 @@ export function LoginPage() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: "", password: "" },
   })
+
+  useEffect(() => {
+    const subscription = watch(() => setFormError(null))
+    return () => subscription.unsubscribe()
+  }, [watch])
 
   async function onSubmit(values: LoginValues) {
     setFormError(null)
@@ -78,9 +84,7 @@ export function LoginPage() {
                     aria-invalid={errors.email ? true : undefined}
                     {...register("email")}
                   />
-                  {errors.email ? (
-                    <FieldDescription>{errors.email.message}</FieldDescription>
-                  ) : null}
+                  <FieldError errors={[errors.email]} />
                 </Field>
                 <Field data-invalid={errors.password ? true : undefined}>
                   <FieldLabel htmlFor="password">Contraseña</FieldLabel>
@@ -91,9 +95,7 @@ export function LoginPage() {
                     aria-invalid={errors.password ? true : undefined}
                     {...register("password")}
                   />
-                  {errors.password ? (
-                    <FieldDescription>{errors.password.message}</FieldDescription>
-                  ) : null}
+                  <FieldError errors={[errors.password]} />
                 </Field>
                 <Button type="submit" disabled={isSubmitting}>
                   {isSubmitting ? <Spinner data-icon="inline-start" /> : null}
