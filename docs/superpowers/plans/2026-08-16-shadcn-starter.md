@@ -545,11 +545,27 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null)
 
+function isStoredUser(value: unknown): value is User {
+  if (typeof value !== "object" || value === null) return false
+  const candidate = value as Record<string, unknown>
+  return (
+    typeof candidate.id === "string" &&
+    typeof candidate.name === "string" &&
+    typeof candidate.email === "string" &&
+    typeof candidate.role === "string"
+  )
+}
+
 function readStoredUser(): User | null {
   const raw = window.localStorage.getItem(STORAGE_KEY)
   if (!raw) return null
   try {
-    return JSON.parse(raw) as User
+    const parsed: unknown = JSON.parse(raw)
+    if (!isStoredUser(parsed)) {
+      window.localStorage.removeItem(STORAGE_KEY)
+      return null
+    }
+    return parsed
   } catch {
     window.localStorage.removeItem(STORAGE_KEY)
     return null
