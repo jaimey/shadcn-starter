@@ -1948,11 +1948,24 @@ const createKeySchema = z.object({
 
 type CreateKeyValues = z.infer<typeof createKeySchema>
 
+// 256 no es múltiplo de 36, así que un `byte % 36` directo favorecería a las cuatro
+// primeras letras del alfabeto. Se descartan los bytes por encima del múltiplo más alto
+// que cabe en un byte y se vuelve a tirar, de modo que todos los caracteres son
+// igual de probables.
+const UNBIASED_LIMIT = Math.floor(256 / TOKEN_ALPHABET.length) * TOKEN_ALPHABET.length
+
 function generateToken() {
+  const chars: string[] = []
   const bytes = new Uint8Array(TOKEN_LENGTH)
-  crypto.getRandomValues(bytes)
-  const body = Array.from(bytes, (byte) => TOKEN_ALPHABET[byte % TOKEN_ALPHABET.length]).join("")
-  return `sk_live_${body}`
+  while (chars.length < TOKEN_LENGTH) {
+    crypto.getRandomValues(bytes)
+    for (const byte of bytes) {
+      if (byte >= UNBIASED_LIMIT) continue
+      chars.push(TOKEN_ALPHABET[byte % TOKEN_ALPHABET.length])
+      if (chars.length === TOKEN_LENGTH) break
+    }
+  }
+  return `sk_live_${chars.join("")}`
 }
 
 function maskToken(token: string) {
