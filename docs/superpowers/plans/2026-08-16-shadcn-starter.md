@@ -22,8 +22,8 @@ Estas restricciones aplican a **todas** las tareas. No se repiten en cada una.
 
 **Sobre el código (reglas críticas de `.agents/skills/shadcn/`, vinculantes):**
 
-- Formularios con `FieldGroup` + `Field` + `FieldLabel` + `FieldDescription`. Nunca un `div` con `space-y-*`, nunca el wrapper `FormField`/`FormItem`.
-- Validación: `data-invalid` en el `Field`, `aria-invalid` en el control. Deshabilitado: `data-disabled` en el `Field`, `disabled` en el control.
+- Formularios con `FieldGroup` + `Field` + `FieldLabel`. Nunca un `div` con `space-y-*`, nunca el wrapper `FormField`/`FormItem`.
+- Validación: `data-invalid` en el `Field`, `aria-invalid` en el control, y el mensaje de error en **`FieldError`**, nunca en `FieldDescription`. `FieldError` renderiza `role="alert"` con `text-destructive`; `FieldDescription` es texto de ayuda en gris y no se anuncia a lectores de pantalla. Deshabilitado: `data-disabled` en el `Field`, `disabled` en el control.
 - Estados vacíos con el componente `Empty`. Nada de markup propio.
 - Buscadores con icono: `InputGroup` + `InputGroupInput` + `InputGroupAddon`. Nunca `Input` con padding y un icono en `absolute`.
 - `Button` no tiene `isLoading`. Se compone con `Spinner`, `data-icon="inline-start"` y `disabled`.
@@ -819,7 +819,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field"
+import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
 import { DEMO_CREDENTIALS } from "@/data/users"
@@ -886,7 +886,7 @@ export function LoginPage() {
                     {...register("email")}
                   />
                   {errors.email ? (
-                    <FieldDescription>{errors.email.message}</FieldDescription>
+                    <FieldError>{errors.email.message}</FieldError>
                   ) : null}
                 </Field>
                 <Field data-invalid={errors.password ? true : undefined}>
@@ -899,7 +899,7 @@ export function LoginPage() {
                     {...register("password")}
                   />
                   {errors.password ? (
-                    <FieldDescription>{errors.password.message}</FieldDescription>
+                    <FieldError>{errors.password.message}</FieldError>
                   ) : null}
                 </Field>
                 <Button type="submit" disabled={isSubmitting}>
@@ -1912,7 +1912,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field"
+import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import {
   InputGroup,
@@ -2071,7 +2071,7 @@ export function CreateKeyDialog({ onCreated }: { onCreated: (key: ApiKey) => voi
                   {...register("name")}
                 />
                 {errors.name ? (
-                  <FieldDescription>{errors.name.message}</FieldDescription>
+                  <FieldError>{errors.name.message}</FieldError>
                 ) : null}
               </Field>
               <Field>
@@ -2326,7 +2326,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field"
+import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
 import { useAuth } from "@/lib/auth"
@@ -2403,9 +2403,9 @@ export function ProfilePage() {
                   {...personalForm.register("name")}
                 />
                 {personalForm.formState.errors.name ? (
-                  <FieldDescription>
+                  <FieldError>
                     {personalForm.formState.errors.name.message}
-                  </FieldDescription>
+                  </FieldError>
                 ) : null}
               </Field>
               <Field data-disabled>
@@ -2452,9 +2452,9 @@ export function ProfilePage() {
                   {...passwordForm.register("currentPassword")}
                 />
                 {passwordForm.formState.errors.currentPassword ? (
-                  <FieldDescription>
+                  <FieldError>
                     {passwordForm.formState.errors.currentPassword.message}
-                  </FieldDescription>
+                  </FieldError>
                 ) : null}
               </Field>
               <Field
@@ -2471,9 +2471,9 @@ export function ProfilePage() {
                   {...passwordForm.register("newPassword")}
                 />
                 {passwordForm.formState.errors.newPassword ? (
-                  <FieldDescription>
+                  <FieldError>
                     {passwordForm.formState.errors.newPassword.message}
-                  </FieldDescription>
+                  </FieldError>
                 ) : null}
               </Field>
               <Field
@@ -2492,9 +2492,9 @@ export function ProfilePage() {
                   {...passwordForm.register("confirmPassword")}
                 />
                 {passwordForm.formState.errors.confirmPassword ? (
-                  <FieldDescription>
+                  <FieldError>
                     {passwordForm.formState.errors.confirmPassword.message}
-                  </FieldDescription>
+                  </FieldError>
                 ) : null}
               </Field>
             </FieldGroup>
@@ -2641,7 +2641,7 @@ la spec.
 Va entre la card de contraseña y la de información de la cuenta. Añade los imports:
 
 ```tsx
-import { Field, FieldDescription, FieldGroup, FieldLabel, FieldTitle } from "@/components/ui/field"
+import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldTitle } from "@/components/ui/field"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { useTheme, type Theme } from "@/components/theme-provider"
 ```

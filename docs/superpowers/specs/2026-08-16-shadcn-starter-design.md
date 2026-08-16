@@ -63,9 +63,11 @@ El proyecto incluye la skill oficial de shadcn en `.agents/skills/shadcn/`, fija
 `skills-lock.json`. Sus reglas críticas son vinculantes y prevalecen sobre cualquier
 descripción de este documento. Las que afectan directamente a este starter:
 
-- **Formularios** — `FieldGroup` + `Field` + `FieldLabel` + `FieldDescription`. Nunca
-  un `div` con `space-y-*`, ni el wrapper `FormField`/`FormItem`. La validación se
-  expresa con `data-invalid` en el `Field` y `aria-invalid` en el control.
+- **Formularios** — `FieldGroup` + `Field` + `FieldLabel`. Nunca un `div` con
+  `space-y-*`, ni el wrapper `FormField`/`FormItem`. La validación se expresa con
+  `data-invalid` en el `Field`, `aria-invalid` en el control y el mensaje en
+  `FieldError` —no en `FieldDescription`, que es texto de ayuda en gris y sin
+  `role="alert"`.
 - **Estados vacíos** — componente `Empty` (`EmptyHeader`, `EmptyMedia`, `EmptyTitle`,
   `EmptyDescription`). Nada de markup propio.
 - **Buscadores con icono** — `InputGroup` + `InputGroupInput` + `InputGroupAddon`.
@@ -161,7 +163,10 @@ El item activo se resalta con `isActive` de los componentes de sidebar de shadcn
 Estructura visual del bloque `@shadcn/login-01`. Campos email y contraseña dentro de un
 `FieldGroup`, validados con zod (email con formato válido, contraseña con longitud
 mínima). Los errores se muestran con `data-invalid` en el `Field`, `aria-invalid` en el
-`Input` y el mensaje en `FieldDescription`.
+`Input` y el mensaje en `FieldError`.
+
+El `Alert` de credenciales incorrectas se limpia en cuanto el usuario edita cualquiera de
+los dos campos, sin esperar a un nuevo envío.
 
 Durante el envío el botón se deshabilita y muestra un `Spinner` con
 `data-icon="inline-start"`. Unas credenciales incorrectas producen un `Alert` de
