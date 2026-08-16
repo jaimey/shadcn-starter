@@ -12,10 +12,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldTitle,
+} from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { useAuth } from "@/lib/auth"
+import { useTheme, type Theme } from "@/components/theme-provider"
 
 const FAKE_LATENCY_MS = 800
 
@@ -39,6 +48,7 @@ type PasswordValues = z.infer<typeof passwordSchema>
 
 export function ProfilePage() {
   const { user, updateName } = useAuth()
+  const { theme, setTheme } = useTheme()
 
   const personalForm = useForm<PersonalValues>({
     resolver: zodResolver(personalSchema),
@@ -194,6 +204,31 @@ export function ProfilePage() {
             </Button>
           </CardFooter>
         </form>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Apariencia</CardTitle>
+          <CardDescription>Elige el tema de la interfaz.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Field orientation="horizontal">
+            <FieldTitle id="theme-label">Tema</FieldTitle>
+            <ToggleGroup
+              type="single"
+              aria-labelledby="theme-label"
+              spacing={2}
+              value={theme}
+              onValueChange={(value) => {
+                if (value) setTheme(value as Theme)
+              }}
+            >
+              <ToggleGroupItem value="light">Claro</ToggleGroupItem>
+              <ToggleGroupItem value="dark">Oscuro</ToggleGroupItem>
+              <ToggleGroupItem value="system">Sistema</ToggleGroupItem>
+            </ToggleGroup>
+          </Field>
+        </CardContent>
       </Card>
 
       <Card>
