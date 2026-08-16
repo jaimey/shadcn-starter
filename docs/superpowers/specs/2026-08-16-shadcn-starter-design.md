@@ -18,9 +18,11 @@ Estas decisiones resuelven ambigüedades de la spec original. Son vinculantes.
 
 | Tema | Decisión |
 |---|---|
+| Primitivos (`base`) | `radix` |
+| Preset visual | `lyra` |
 | Contenido del Dashboard | Placeholders vacíos, sin datos ni gráficas |
 | Tabla de usuarios | TanStack Table (`@tanstack/react-table`) |
-| Formularios | react-hook-form + zod + componente `<Form>` de shadcn |
+| Formularios | react-hook-form + zod, renderizados con primitivos `Field` |
 | Sesión | Persistida en `localStorage`; sobrevive al refresco |
 | Acciones sobre usuarios | Decorativas: disparan un toast, no mutan datos |
 | Módulo de API keys | Crear (con revelado único del token) y revocar, sobre estado local |
@@ -33,17 +35,60 @@ Estas decisiones resuelven ambigüedades de la spec original. Son vinculantes.
 
 - Vite + React 19 + TypeScript
 - Tailwind CSS v4
-- shadcn/ui
+- shadcn/ui, con `base: radix` y preset `lyra`
 
 Dependencias adicionales, cada una justificada por una decisión de arriba:
 
 - `react-router` — navegación y rutas protegidas
 - `react-hook-form`, `zod`, `@hookform/resolvers` — formularios y validación
 - `@tanstack/react-table` — tablas de usuarios y de API keys
-- `sonner` — toasts
+- `sonner` — toasts (obligatorio por usar base `radix`)
 - `lucide-react` — iconos
 
 No se añade ninguna otra dependencia.
+
+El proyecto se crea con la CLI de shadcn sobre la plantilla `vite`. El directorio
+actual ya contiene `docs/`, `.agents/` y el repositorio git, así que el andamiaje se
+genera aparte y se traslada a la raíz, preservando lo existente. Tras inicializar hay
+que confirmar con `npx shadcn@latest info` que `base` quedó en `radix` y anotar los
+valores reales de `aliasPrefix`, `tailwindCssFile` y `resolvedPaths`: el resto de este
+documento se apoya en ellos y no en rutas supuestas.
+
+## 3.1 Reglas de la skill shadcn
+
+El proyecto incluye la skill oficial de shadcn en `.agents/skills/shadcn/`, fijada por
+`skills-lock.json`. Sus reglas críticas son vinculantes y prevalecen sobre cualquier
+descripción de este documento. Las que afectan directamente a este starter:
+
+- **Formularios** — `FieldGroup` + `Field` + `FieldLabel` + `FieldDescription`. Nunca
+  un `div` con `space-y-*`, ni el wrapper `FormField`/`FormItem`. La validación se
+  expresa con `data-invalid` en el `Field` y `aria-invalid` en el control.
+- **Estados vacíos** — componente `Empty` (`EmptyHeader`, `EmptyMedia`, `EmptyTitle`,
+  `EmptyDescription`). Nada de markup propio.
+- **Buscadores con icono** — `InputGroup` + `InputGroupInput` + `InputGroupAddon`.
+  Nunca un `Input` con padding y un icono posicionado en absoluto.
+- **Botones en carga** — `Button` no tiene `isLoading`. Se compone con `Spinner`,
+  `data-icon="inline-start"` y `disabled`.
+- **Colores** — solo tokens semánticos y variantes existentes. Prohibidos los colores
+  crudos de Tailwind, incluso para estados. Prohibidos los `dark:` manuales.
+- **Espaciado** — `gap-*`, nunca `space-x-*` ni `space-y-*`. `size-*` cuando ancho y
+  alto coinciden.
+- **Grupos** — `SelectItem` dentro de `SelectGroup`, `DropdownMenuItem` dentro de
+  `DropdownMenuGroup`.
+- **Iconos** — `data-icon` para iconos dentro de componentes, sin clases de tamaño.
+- **Overlays** — sin `z-index` manual. `Dialog` y `AlertDialog` necesitan su `Title`.
+- **Clases condicionales** — con `cn()`, nunca con plantillas ternarias.
+
+Del flujo de trabajo de la skill, dos pasos son obligatorios en la implementación:
+
+1. **Registro explícito.** Los bloques se piden como `@shadcn/login-01` y
+   `@shadcn/sidebar-07`. Nunca sin prefijo de registro.
+2. **Documentación antes de usar.** Para cada componente nuevo, ejecutar
+   `npx shadcn@latest docs <componente>` y leer las URLs que devuelve antes de
+   escribir código contra su API.
+
+Tras añadir cualquier bloque hay que leer los ficheros generados y corregir lo que
+incumpla estas reglas, en lugar de asumir que vienen correctos.
 
 ## 4. Rutas
 
@@ -83,13 +128,13 @@ No hay tokens, refresh, roles a nivel de ruta ni expiración. Nada de eso está 
 
 ## 6. Layout principal
 
-`AppLayout` compone `SidebarProvider` + `AppSidebar` + header + `<Outlet/>`, siguiendo
-la plantilla `sidebar-07`.
+`AppLayout` compone `SidebarProvider` + `AppSidebar` + header + `<Outlet/>`, partiendo
+del bloque `@shadcn/sidebar-07`.
 
-Se conserva de `sidebar-07`: el header con marca, la navegación colapsable, `NavUser`
+Se conserva del bloque: el header con marca, la navegación colapsable, `NavUser`
 en el footer con su dropdown, el colapso a modo icono en desktop y el `Sheet` en móvil.
 
-Se elimina de `sidebar-07`: el `TeamSwitcher` (lo reemplaza un bloque de marca simple)
+Se elimina del bloque: el `TeamSwitcher` (lo reemplaza un bloque de marca simple)
 y `NavProjects`. Ninguno aplica a este starter.
 
 El header contiene `SidebarTrigger`, un separador y un breadcrumb derivado de la ruta
@@ -110,51 +155,68 @@ El item activo se resalta con `isActive` de los componentes de sidebar de shadcn
 
 ### Login
 
-Estructura visual de `login-01`. Campos email y contraseña, validados con zod (email
-con formato válido, contraseña con longitud mínima). El botón muestra spinner y queda
-deshabilitado durante el envío. Credenciales incorrectas producen un mensaje de error
-en el formulario. Un login correcto navega a `/dashboard`.
+Estructura visual del bloque `@shadcn/login-01`. Campos email y contraseña dentro de un
+`FieldGroup`, validados con zod (email con formato válido, contraseña con longitud
+mínima). Los errores se muestran con `data-invalid` en el `Field`, `aria-invalid` en el
+`Input` y el mensaje en `FieldDescription`.
+
+Durante el envío el botón se deshabilita y muestra un `Spinner` con
+`data-icon="inline-start"`. Unas credenciales incorrectas producen un `Alert` de
+variante destructiva sobre el formulario. Un login correcto navega a `/dashboard`.
 
 ### Dashboard
 
-Página de placeholders vacíos, al estilo del ejemplo oficial de `sidebar-07`: una fila
-de tres bloques y un bloque grande debajo, con bordes punteados y sin contenido. No
-consume datos mock.
+Página de placeholders vacíos, al estilo del ejemplo que acompaña a `@shadcn/sidebar-07`:
+una fila de tres bloques y un bloque grande debajo, con bordes punteados y sin
+contenido. No consume datos mock.
 
 ### Gestión de usuarios
 
-Data table construida con TanStack Table. Columnas: nombre, email, rol, estado (como
-`Badge` con color por estado), fecha de creación y última conexión.
+Data table construida con TanStack Table. Columnas: nombre, email, rol, estado, fecha
+de creación y última conexión.
+
+El estado se muestra con `Badge`, usando solo variantes existentes: *Activo* →
+`default`, *Pendiente* → `secondary`, *Inactivo* → `outline`. Sin colores crudos.
 
 Controles sobre la tabla:
 
-- Input de búsqueda que filtra por nombre y email
-- Select de filtro por rol
-- Select de filtro por estado
+- Búsqueda por nombre y email, con `InputGroup` + `InputGroupInput` y el icono de lupa
+  en un `InputGroupAddon`
+- `Select` de filtro por rol
+- `Select` de filtro por estado
 - Ordenamiento por columna
 - Paginación
 
-Cada fila tiene un menú `⋯` con Editar, Desactivar y Eliminar. Las tres acciones solo
-disparan un toast de confirmación; no modifican los datos. Es intencional.
+Cada fila tiene un `DropdownMenu` con Editar, Desactivar y Eliminar, agrupados en un
+`DropdownMenuGroup`. Las tres acciones solo disparan un toast de confirmación; no
+modifican los datos. Es intencional.
 
-Si los filtros no devuelven resultados, la tabla muestra una fila de estado vacío.
+Si los filtros no devuelven resultados, la tabla renderiza un componente `Empty` con
+icono, título y descripción dentro de una celda que ocupa todas las columnas.
 
 ### Gestión de API keys
 
 Data table con las mismas capacidades que la de usuarios: búsqueda por nombre, filtro
-por estado, ordenamiento y paginación. Columnas: nombre, token enmascarado, estado
-(`Badge` por estado), fecha de creación, último uso y expiración. Último uso vacío se
-muestra como "Nunca"; expiración vacía, como "Sin expiración".
+por estado, ordenamiento, paginación y el mismo `Empty` cuando no hay resultados.
+Columnas: nombre, token enmascarado, estado, fecha de creación, último uso y
+expiración. Último uso vacío se muestra como "Nunca"; expiración vacía, como "Sin
+expiración".
 
-**Crear.** Un botón *Nueva API key* abre un `Dialog` con react-hook-form + zod: nombre
-(mínimo 3 caracteres) y expiración (`Select` con 30 días, 90 días, 1 año o sin
-expiración). Al enviar espera ~800 ms y genera un token fake con el prefijo `sk_live_`
-seguido de 32 caracteres aleatorios producidos con `crypto.getRandomValues`.
+El estado usa variantes de `Badge`: *Activa* → `default`, *Expirada* → `secondary`,
+*Revocada* → `destructive`.
+
+**Crear.** Un botón *Nueva API key* abre un `Dialog`, con su `DialogTitle` y
+`DialogDescription`, que contiene un formulario react-hook-form + zod sobre un
+`FieldGroup`: nombre (mínimo 3 caracteres) y expiración (`Select` con sus items dentro
+de un `SelectGroup`: 30 días, 90 días, 1 año o sin expiración). Al enviar espera
+~800 ms y genera un token fake con el prefijo `sk_live_` seguido de 32 caracteres
+aleatorios producidos con `crypto.getRandomValues`.
 
 El diálogo entonces cambia a su segundo estado, el de **revelado**: muestra el token
-completo en un campo monoespaciado de solo lectura, un botón *Copiar* que usa
-`navigator.clipboard` y un `Alert` advirtiendo que el token no se volverá a mostrar.
-Al cerrar, la nueva key ya figura en la tabla, enmascarada.
+completo en un `InputGroup` de solo lectura con fuente monoespaciada, un botón *Copiar*
+en un `InputGroupAddon` que usa `navigator.clipboard`, y un `Alert` advirtiendo que el
+token no se volverá a mostrar. Al cerrar, la nueva key ya figura en la tabla,
+enmascarada.
 
 **Revocar.** El menú `⋯` de cada fila ofrece *Revocar*, que abre un `AlertDialog` de
 confirmación. Al confirmar, la key pasa a estado *Revocada* y aparece un toast. La
@@ -171,15 +233,18 @@ descuido y no debe "corregirse" unificando ambos.
 
 ### Perfil de usuario
 
-Tres cards:
+Tres cards, cada una con composición completa: `CardHeader` con `CardTitle` y
+`CardDescription`, el contenido en `CardContent` y el botón de acción en `CardFooter`.
 
-1. **Datos personales** — nombre editable, email deshabilitado en solo lectura.
+1. **Datos personales** — nombre editable y email en un `Field` con `data-disabled`,
+   cuyo `Input` va `disabled`.
 2. **Cambiar contraseña** — contraseña actual, nueva y confirmación. El schema zod usa
    `refine` para exigir que la nueva y su confirmación coincidan.
 3. **Información de la cuenta** — rol, fecha de alta y último acceso, en solo lectura.
 
-Los dos formularios simulan ~800 ms de latencia, deshabilitan el botón mientras envían
-y muestran un toast de éxito al terminar.
+Los dos formularios simulan ~800 ms de latencia y muestran un toast de éxito al
+terminar. Durante el envío el botón va `disabled` con un `Spinner` en
+`data-icon="inline-start"`.
 
 Guardar el nombre actualiza el usuario del `AuthContext` y su copia en `localStorage`,
 de modo que el cambio se refleja de inmediato en `NavUser`. El cambio de contraseña es
@@ -232,8 +297,9 @@ repositorios ni cliente de datos.
 
 ## 9. Tema
 
-`src/globals.css` contiene las variables CSS de shadcn para `:root` y `.dark`, según
-la documentación de theming de shadcn.
+Las variables CSS de shadcn para `:root` y `.dark` viven en el fichero global que
+reporte `tailwindCssFile` en `npx shadcn@latest info`. Ese fichero se edita; no se crea
+uno nuevo ni se asume su ruta.
 
 No hay toggle de tema en la interfaz, tal como exige la spec. Para cambiar de tema se
 añade `class="dark"` al elemento `<html>` en `index.html`. El README lo documenta.
@@ -255,8 +321,11 @@ src/
   lib/                    auth.tsx, utils.ts
   app.tsx
   main.tsx
-  globals.css
 ```
+
+Las rutas concretas (`src/`, prefijo de alias, fichero CSS global) salen de
+`resolvedPaths` y `aliasPrefix` de `npx shadcn@latest info`. Los imports usan siempre
+el alias real del proyecto, nunca uno supuesto.
 
 Cada archivo tiene un propósito único. Las páginas componen; los componentes de
 `components/` no conocen las rutas salvo para navegar.
@@ -280,6 +349,7 @@ No hay tests automatizados. Cada entrega se valida con:
 1. `tsc --noEmit` sin errores
 2. `vite build` sin errores
 3. Revisión visual en el navegador a 1280 px, 768 px y 375 px
+4. Repaso del código nuevo contra las reglas críticas de la sección 3.1
 
 ## 13. Fuera de alcance
 
