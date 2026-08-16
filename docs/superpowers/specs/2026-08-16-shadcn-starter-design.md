@@ -19,7 +19,7 @@ Estas decisiones resuelven ambigüedades de la spec original. Son vinculantes.
 | Tema | Decisión |
 |---|---|
 | Primitivos (`base`) | `radix` |
-| Preset visual | `lyra` |
+| Preset visual | `lyra`, con la paleta sustituida por el tema de la sección 9 |
 | Contenido del Dashboard | Placeholders vacíos, sin datos ni gráficas |
 | Tabla de usuarios | TanStack Table (`@tanstack/react-table`) |
 | Formularios | react-hook-form + zod, renderizados con primitivos `Field` |
@@ -297,12 +297,98 @@ repositorios ni cliente de datos.
 
 ## 9. Tema
 
-Las variables CSS de shadcn para `:root` y `.dark` viven en el fichero global que
-reporte `tailwindCssFile` en `npx shadcn@latest info`. Ese fichero se edita; no se crea
-uno nuevo ni se asume su ruta.
+Las variables CSS viven en el fichero global que reporte `tailwindCssFile` en
+`npx shadcn@latest info`. Ese fichero se edita; no se crea uno nuevo ni se asume su
+ruta. Solo se reemplazan los bloques `:root` y `.dark`: el bloque `@theme inline` que
+genera la CLI mapea esas variables a los tokens de Tailwind y se deja intacto.
+
+El preset `lyra` se sigue usando al inicializar, por su tratamiento visual de
+componentes y su tipografía, pero su paleta queda sustituida por la de abajo. Ante
+cualquier diferencia, mandan estos valores.
+
+Dos consecuencias visuales que conviene tener presentes, porque afectan a todas las
+pantallas: `--radius: 0` deja la interfaz entera con esquinas rectas (botones, cards,
+inputs, badges, diálogos), y los grises no son neutros sino cálidos (matiz ~107), con
+un primario teal.
+
+```css
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.153 0.006 107.1);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.153 0.006 107.1);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.153 0.006 107.1);
+  --primary: oklch(0.52 0.105 223.128);
+  --primary-foreground: oklch(0.984 0.019 200.873);
+  --secondary: oklch(0.967 0.001 286.375);
+  --secondary-foreground: oklch(0.21 0.006 285.885);
+  --muted: oklch(0.966 0.005 106.5);
+  --muted-foreground: oklch(0.58 0.031 107.3);
+  --accent: oklch(0.966 0.005 106.5);
+  --accent-foreground: oklch(0.228 0.013 107.4);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.93 0.007 106.5);
+  --input: oklch(0.93 0.007 106.5);
+  --ring: oklch(0.737 0.021 106.9);
+  --chart-1: oklch(0.865 0.127 207.078);
+  --chart-2: oklch(0.715 0.143 215.221);
+  --chart-3: oklch(0.609 0.126 221.723);
+  --chart-4: oklch(0.52 0.105 223.128);
+  --chart-5: oklch(0.45 0.085 224.283);
+  --radius: 0;
+  --sidebar: oklch(0.988 0.003 106.5);
+  --sidebar-foreground: oklch(0.153 0.006 107.1);
+  --sidebar-primary: oklch(0.609 0.126 221.723);
+  --sidebar-primary-foreground: oklch(0.984 0.019 200.873);
+  --sidebar-accent: oklch(0.966 0.005 106.5);
+  --sidebar-accent-foreground: oklch(0.228 0.013 107.4);
+  --sidebar-border: oklch(0.93 0.007 106.5);
+  --sidebar-ring: oklch(0.737 0.021 106.9);
+}
+
+.dark {
+  --background: oklch(0.153 0.006 107.1);
+  --foreground: oklch(0.988 0.003 106.5);
+  --card: oklch(0.228 0.013 107.4);
+  --card-foreground: oklch(0.988 0.003 106.5);
+  --popover: oklch(0.228 0.013 107.4);
+  --popover-foreground: oklch(0.988 0.003 106.5);
+  --primary: oklch(0.45 0.085 224.283);
+  --primary-foreground: oklch(0.984 0.019 200.873);
+  --secondary: oklch(0.274 0.006 286.033);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.286 0.016 107.4);
+  --muted-foreground: oklch(0.737 0.021 106.9);
+  --accent: oklch(0.286 0.016 107.4);
+  --accent-foreground: oklch(0.988 0.003 106.5);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.58 0.031 107.3);
+  --chart-1: oklch(0.865 0.127 207.078);
+  --chart-2: oklch(0.715 0.143 215.221);
+  --chart-3: oklch(0.609 0.126 221.723);
+  --chart-4: oklch(0.52 0.105 223.128);
+  --chart-5: oklch(0.45 0.085 224.283);
+  --sidebar: oklch(0.228 0.013 107.4);
+  --sidebar-foreground: oklch(0.988 0.003 106.5);
+  --sidebar-primary: oklch(0.715 0.143 215.221);
+  --sidebar-primary-foreground: oklch(0.302 0.056 229.695);
+  --sidebar-accent: oklch(0.286 0.016 107.4);
+  --sidebar-accent-foreground: oklch(0.988 0.003 106.5);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.58 0.031 107.3);
+}
+```
+
+Las variables `--chart-*` se conservan por formar parte del juego estándar de tokens,
+aunque este starter no tenga gráficas.
 
 No hay toggle de tema en la interfaz, tal como exige la spec. Para cambiar de tema se
 añade `class="dark"` al elemento `<html>` en `index.html`. El README lo documenta.
+
+La verificación visual de la sección 12 se hace en ambos temas, no solo en claro.
 
 ## 10. Estructura de carpetas
 
@@ -348,7 +434,7 @@ No hay tests automatizados. Cada entrega se valida con:
 
 1. `tsc --noEmit` sin errores
 2. `vite build` sin errores
-3. Revisión visual en el navegador a 1280 px, 768 px y 375 px
+3. Revisión visual en el navegador a 1280 px, 768 px y 375 px, en tema claro y oscuro
 4. Repaso del código nuevo contra las reglas críticas de la sección 3.1
 
 ## 13. Fuera de alcance
