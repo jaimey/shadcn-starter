@@ -308,8 +308,15 @@ ruta. Solo se reemplazan los bloques `:root` y `.dark`: el bloque `@theme inline
 genera la CLI mapea esas variables a los tokens de Tailwind y se deja intacto.
 
 El preset `lyra` se sigue usando al inicializar, por su tratamiento visual de
-componentes y su tipografía, pero su paleta queda sustituida por la de abajo. Ante
-cualquier diferencia, mandan estos valores.
+componentes, pero dos de sus decisiones quedan sustituidas. Ante cualquier diferencia,
+manda esta sección.
+
+- **Paleta** — la de abajo, no la del preset.
+- **Tipografía** — `lyra` fija JetBrains Mono para toda la interfaz. Se sustituye por
+  **Inter** en el texto de la UI. La monoespaciada se conserva, pero solo para el campo
+  del token en el diálogo de creación de API keys.
+- **Iconos** — `lyra` fija Phosphor. Se sustituye por `lucide`, que es lo que declara la
+  sección 3.
 
 Dos consecuencias visuales que conviene tener presentes, porque afectan a todas las
 pantallas: `--radius: 0` deja la interfaz entera con esquinas rectas (botones, cards,
