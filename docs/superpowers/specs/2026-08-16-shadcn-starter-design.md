@@ -9,6 +9,9 @@ Un starter frontend funcional y visualmente pulido, basado en shadcn/ui, que sir
 como punto de partida para nuevos proyectos. Toda la información proviene de datos
 mock. No hay backend, base de datos ni persistencia real.
 
+Este documento amplía la spec original con un módulo de gestión de API keys, acordado
+después de escribirla. Ante cualquier discrepancia, manda este documento.
+
 ## 2. Decisiones tomadas
 
 Estas decisiones resuelven ambigüedades de la spec original. Son vinculantes.
@@ -20,6 +23,8 @@ Estas decisiones resuelven ambigüedades de la spec original. Son vinculantes.
 | Formularios | react-hook-form + zod + componente `<Form>` de shadcn |
 | Sesión | Persistida en `localStorage`; sobrevive al refresco |
 | Acciones sobre usuarios | Decorativas: disparan un toast, no mutan datos |
+| Módulo de API keys | Crear (con revelado único del token) y revocar, sobre estado local |
+| Atributos de API key | Base, sin permisos ni entorno |
 | Idioma de la UI | Español |
 | Tests | Ninguno |
 | Estructura de carpetas | Por tipo (`pages/`, `components/`, `data/`, `lib/`) |
@@ -34,7 +39,7 @@ Dependencias adicionales, cada una justificada por una decisión de arriba:
 
 - `react-router` — navegación y rutas protegidas
 - `react-hook-form`, `zod`, `@hookform/resolvers` — formularios y validación
-- `@tanstack/react-table` — tabla de usuarios
+- `@tanstack/react-table` — tablas de usuarios y de API keys
 - `sonner` — toasts
 - `lucide-react` — iconos
 
@@ -49,6 +54,7 @@ Las rutas van en inglés (convención de código); los textos visibles, en espa�
 | `/login` | Público | Login |
 | `/dashboard` | Protegida | Dashboard |
 | `/settings/users` | Protegida | Gestión de usuarios |
+| `/settings/api-keys` | Protegida | Gestión de API keys |
 | `/profile` | Protegida | Perfil de usuario |
 | `/` | — | Redirige a `/dashboard` |
 
@@ -92,7 +98,9 @@ activa.
 ### Navegación
 
 - **Dashboard** → `/dashboard`
-- **Configuración** (colapsable) → *Usuarios* → `/settings/users`
+- **Configuración** (colapsable)
+  - *Usuarios* → `/settings/users`
+  - *API Keys* → `/settings/api-keys`
 - **Perfil** → `/profile`
 
 El item activo se resalta con `isActive` de los componentes de sidebar de shadcn.
@@ -131,6 +139,36 @@ disparan un toast de confirmación; no modifican los datos. Es intencional.
 
 Si los filtros no devuelven resultados, la tabla muestra una fila de estado vacío.
 
+### Gestión de API keys
+
+Data table con las mismas capacidades que la de usuarios: búsqueda por nombre, filtro
+por estado, ordenamiento y paginación. Columnas: nombre, token enmascarado, estado
+(`Badge` por estado), fecha de creación, último uso y expiración. Último uso vacío se
+muestra como "Nunca"; expiración vacía, como "Sin expiración".
+
+**Crear.** Un botón *Nueva API key* abre un `Dialog` con react-hook-form + zod: nombre
+(mínimo 3 caracteres) y expiración (`Select` con 30 días, 90 días, 1 año o sin
+expiración). Al enviar espera ~800 ms y genera un token fake con el prefijo `sk_live_`
+seguido de 32 caracteres aleatorios producidos con `crypto.getRandomValues`.
+
+El diálogo entonces cambia a su segundo estado, el de **revelado**: muestra el token
+completo en un campo monoespaciado de solo lectura, un botón *Copiar* que usa
+`navigator.clipboard` y un `Alert` advirtiendo que el token no se volverá a mostrar.
+Al cerrar, la nueva key ya figura en la tabla, enmascarada.
+
+**Revocar.** El menú `⋯` de cada fila ofrece *Revocar*, que abre un `AlertDialog` de
+confirmación. Al confirmar, la key pasa a estado *Revocada* y aparece un toast. La
+opción se deshabilita en keys ya revocadas.
+
+No existe acción de copiar en la tabla: una vez cerrado el diálogo de creación, el
+token completo deja de estar disponible. Esa ausencia es parte del patrón que el
+módulo enseña.
+
+**Sobre la inconsistencia con Usuarios.** Usuarios tiene acciones decorativas y API
+Keys muta de verdad el estado local. Es deliberado: el starter muestra los dos
+patrones, el de pantalla de solo lectura y el de mutación en memoria. No es un
+descuido y no debe "corregirse" unificando ambos.
+
 ### Perfil de usuario
 
 Tres cards:
@@ -168,6 +206,25 @@ type User = {
 }
 ```
 
+`src/data/api-keys.ts` define el tipo `ApiKey` y exporta unos 8 registros mock.
+
+```ts
+type ApiKeyStatus = "Activa" | "Revocada" | "Expirada"
+
+type ApiKey = {
+  id: string
+  name: string
+  tokenPreview: string      // "sk_live_••••••••a3f9"
+  status: ApiKeyStatus
+  createdAt: string         // ISO 8601
+  lastUsed: string | null   // null = nunca usada
+  expiresAt: string | null  // null = sin expiración
+}
+```
+
+La página de API keys copia ese array a un `useState` al montar y opera sobre esa
+copia. El módulo de usuarios lee su array directamente, sin copiarlo.
+
 `src/data/nav.ts` exporta los items de navegación del sidebar.
 
 Los datos se importan directamente desde las páginas. No hay capa de servicios,
@@ -187,12 +244,14 @@ añade `class="dark"` al elemento `<html>` en `index.html`. El README lo documen
 src/
   components/ui/          primitivos de shadcn
   components/             app-sidebar, nav-main, nav-user,
-                          site-header, protected-route
-  components/users/       columns.tsx, users-table.tsx
+                          site-header, protected-route,
+                          data-table
+  components/users/       columns.tsx
+  components/api-keys/    columns.tsx, create-key-dialog.tsx
   layouts/                app-layout.tsx
   pages/                  login-page, dashboard-page,
-                          users-page, profile-page
-  data/                   users.ts, nav.ts
+                          users-page, api-keys-page, profile-page
+  data/                   users.ts, api-keys.ts, nav.ts
   lib/                    auth.tsx, utils.ts
   app.tsx
   main.tsx
@@ -202,12 +261,17 @@ src/
 Cada archivo tiene un propósito único. Las páginas componen; los componentes de
 `components/` no conocen las rutas salvo para navegar.
 
+`components/data-table.tsx` es la única abstracción del starter: recibe una instancia
+de TanStack Table y renderiza cabecera, cuerpo, estado vacío y paginación. Existe
+porque hay dos tablas reales que la usan, no por anticipación. Las definiciones de
+columnas y los controles de filtro siguen siendo propios de cada módulo.
+
 ## 11. Responsive
 
 La aplicación funciona en desktop, tablet y móvil. El sidebar usa los mecanismos
 propios de shadcn: colapso a modo icono en desktop y `Sheet` deslizable en móvil.
-La tabla de usuarios hace scroll horizontal en pantallas estrechas y sus controles de
-filtro se apilan verticalmente.
+Ambas tablas hacen scroll horizontal en pantallas estrechas y sus controles de filtro
+se apilan verticalmente.
 
 ## 12. Verificación
 
@@ -220,5 +284,9 @@ No hay tests automatizados. Cada entrega se valida con:
 ## 13. Fuera de alcance
 
 Explícitamente no se implementa: backend, base de datos, persistencia real,
-autenticación real, i18n, toggle de tema en la UI, gráficas, creación o edición real
-de usuarios, tests, ni ninguna funcionalidad no contemplada en la spec original.
+autenticación real, i18n, toggle de tema en la UI, gráficas, creación o edición de
+usuarios, tests, ni ninguna funcionalidad no contemplada en este documento.
+
+Sobre las API keys en concreto: los tokens generados no autentican nada, no se validan
+contra ningún servicio y no sobreviven a un refresco de la página. Tampoco hay
+edición de keys, rotación, permisos ni entornos.
