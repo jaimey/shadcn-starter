@@ -9,8 +9,9 @@ Un starter frontend funcional y visualmente pulido, basado en shadcn/ui, que sir
 como punto de partida para nuevos proyectos. Toda la información proviene de datos
 mock. No hay backend, base de datos ni persistencia real.
 
-Este documento amplía la spec original con un módulo de gestión de API keys, acordado
-después de escribirla. Ante cualquier discrepancia, manda este documento.
+Este documento amplía la spec original con un módulo de gestión de API keys y sustituye
+su sección 14 permitiendo un selector de tema en la interfaz. Ambas decisiones son
+posteriores a la spec original. Ante cualquier discrepancia, manda este documento.
 
 ## 2. Decisiones tomadas
 
@@ -27,6 +28,7 @@ Estas decisiones resuelven ambigüedades de la spec original. Son vinculantes.
 | Acciones sobre usuarios | Decorativas: disparan un toast, no mutan datos |
 | Módulo de API keys | Crear (con revelado único del token) y revocar, sobre estado local |
 | Atributos de API key | Base, sin permisos ni entorno |
+| Selector de tema | Card *Apariencia* en Perfil: Claro / Oscuro / Sistema |
 | Idioma de la UI | Español |
 | Tests | Ninguno |
 | Estructura de carpetas | Por tipo (`pages/`, `components/`, `data/`, `lib/`) |
@@ -233,14 +235,16 @@ descuido y no debe "corregirse" unificando ambos.
 
 ### Perfil de usuario
 
-Tres cards, cada una con composición completa: `CardHeader` con `CardTitle` y
-`CardDescription`, el contenido en `CardContent` y el botón de acción en `CardFooter`.
+Cuatro cards, cada una con composición completa: `CardHeader` con `CardTitle` y
+`CardDescription`, el contenido en `CardContent` y el botón de acción en `CardFooter`
+cuando lo haya.
 
 1. **Datos personales** — nombre editable y email en un `Field` con `data-disabled`,
    cuyo `Input` va `disabled`.
 2. **Cambiar contraseña** — contraseña actual, nueva y confirmación. El schema zod usa
    `refine` para exigir que la nueva y su confirmación coincidan.
-3. **Información de la cuenta** — rol, fecha de alta y último acceso, en solo lectura.
+3. **Apariencia** — el selector de tema descrito en la sección 9.
+4. **Información de la cuenta** — rol, fecha de alta y último acceso, en solo lectura.
 
 Los dos formularios simulan ~800 ms de latencia y muestran un toast de éxito al
 terminar. Durante el envío el botón va `disabled` con un `Spinner` en
@@ -386,8 +390,25 @@ frío por defecto, de forma deliberada.
 Las variables `--chart-*` se conservan por formar parte del juego estándar de tokens,
 aunque este starter no tenga gráficas.
 
-No hay toggle de tema en la interfaz, tal como exige la spec. Para cambiar de tema se
-añade `class="dark"` al elemento `<html>` en `index.html`. El README lo documenta.
+### Selector de tema
+
+`src/lib/theme.tsx` expone `ThemeProvider` y el hook `useTheme()`, con
+`theme: "light" | "dark" | "system"` y `setTheme()`. El provider guarda la preferencia
+en `localStorage` bajo una clave propia y mantiene la clase `dark` del elemento `<html>`
+en sincronía. Con `system`, escucha `matchMedia("(prefers-color-scheme: dark)")` y
+reacciona a los cambios del sistema operativo en caliente.
+
+Para evitar el parpadeo de tema claro al cargar, `index.html` incluye un script inline
+mínimo que lee la preferencia de `localStorage` y aplica la clase antes de que React
+monte.
+
+En la interfaz, la card *Apariencia* del perfil contiene un
+`Field orientation="horizontal"` con `FieldTitle` y un `ToggleGroup type="single"` con
+tres `ToggleGroupItem`: Claro, Oscuro y Sistema. El `ToggleGroup` se asocia al título
+con `aria-labelledby`. El cambio se aplica al instante y no muestra toast: el propio
+cambio de color es la confirmación.
+
+La preferencia de tema es independiente de la sesión y sobrevive al cierre de sesión.
 
 La verificación visual de la sección 12 se hace en ambos temas, no solo en claro.
 
@@ -405,7 +426,7 @@ src/
   pages/                  login-page, dashboard-page,
                           users-page, api-keys-page, profile-page
   data/                   users.ts, api-keys.ts, nav.ts
-  lib/                    auth.tsx, utils.ts
+  lib/                    auth.tsx, theme.tsx, utils.ts
   app.tsx
   main.tsx
 ```
@@ -441,8 +462,8 @@ No hay tests automatizados. Cada entrega se valida con:
 ## 13. Fuera de alcance
 
 Explícitamente no se implementa: backend, base de datos, persistencia real,
-autenticación real, i18n, toggle de tema en la UI, gráficas, creación o edición de
-usuarios, tests, ni ninguna funcionalidad no contemplada en este documento.
+autenticación real, i18n, gráficas, creación o edición de usuarios, tests, ni ninguna
+funcionalidad no contemplada en este documento.
 
 Sobre las API keys en concreto: los tokens generados no autentican nada, no se validan
 contra ningún servicio y no sobreviven a un refresco de la página. Tampoco hay
