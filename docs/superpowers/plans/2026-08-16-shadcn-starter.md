@@ -2584,26 +2584,17 @@ Tres cambios, ninguno más. No reescribas el fichero.
 4. **Nada más.** La persistencia, la clave `storageKey = "theme"`, la escucha del sistema y
    la supresión de transiciones se conservan tal cual.
 
-- [ ] **Step 2: Conectar `sonner` al provider del proyecto**
+- [ ] **Step 2: Comprobar que `sonner` está conectado al provider del proyecto**
 
-`src/components/ui/sonner.tsx` viene del registro de shadcn importando `useTheme` de
-`next-themes`, una librería de Next.js que el proyecto no usa y que la spec no contempla.
-Ese import arrastró `next-themes` a `package.json`.
-
-Cambia el import para que use el provider del proyecto:
-
-```tsx
-import { useTheme } from "@/components/theme-provider"
-```
-
-El resto del fichero no cambia: `useTheme()` sigue devolviendo `{ theme }` con los mismos
-tres valores posibles, que es lo que `Sonner` espera en su prop `theme`.
-
-Después desinstala la dependencia y comprueba que no queda ninguna referencia:
+Ya hecho en la Tarea 3, que sacó `next-themes` del proyecto y reescribió el import. Aquí
+solo se verifica, porque el paso siguiente depende de ello:
 
 ```bash
-cd /Users/jaime/Herd/shadcn-starter && npm uninstall next-themes && grep -rn "next-themes" src/ package.json || echo "sin referencias"
+cd /Users/jaime/Herd/shadcn-starter && head -1 src/components/ui/sonner.tsx && grep -rn "next-themes" src/ package.json || echo "sin referencias"
 ```
+
+Esperado: el import es `from "@/components/theme-provider"` y no queda ninguna referencia
+a `next-themes`. Si no fuera así, corrígelo aquí antes de seguir.
 
 - [ ] **Step 3: Añadir el script anti-parpadeo a `index.html`**
 
