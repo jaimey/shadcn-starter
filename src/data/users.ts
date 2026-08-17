@@ -12,12 +12,12 @@ export type User = {
 }
 
 export const DEMO_CREDENTIALS = {
-  email: "ana.torres@acme.com",
-  password: "demo1234",
+  email: "admin@example.com",
+  password: "password",
 }
 
 export const users: User[] = [
-  { id: "u-01", name: "Ana Torres", email: "ana.torres@acme.com", role: "Administrador", status: "Activo", createdAt: "2023-01-15T09:00:00Z", lastLogin: "2026-08-15T08:42:00Z" },
+  { id: "u-01", name: "Ana Torres", email: "admin@example.com", role: "Administrador", status: "Activo", createdAt: "2023-01-15T09:00:00Z", lastLogin: "2026-08-15T08:42:00Z" },
   { id: "u-02", name: "Bruno Salas", email: "bruno.salas@acme.com", role: "Editor", status: "Activo", createdAt: "2023-02-03T11:20:00Z", lastLogin: "2026-08-14T17:05:00Z" },
   { id: "u-03", name: "Carla Méndez", email: "carla.mendez@acme.com", role: "Visor", status: "Inactivo", createdAt: "2023-02-27T14:45:00Z", lastLogin: "2025-11-02T10:15:00Z" },
   { id: "u-04", name: "Diego Ferrer", email: "diego.ferrer@acme.com", role: "Editor", status: "Activo", createdAt: "2023-03-11T08:30:00Z", lastLogin: "2026-08-16T07:10:00Z" },

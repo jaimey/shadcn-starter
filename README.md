@@ -18,8 +18,8 @@ npm run dev
 ## Credenciales de demostración
 
 ```
-ana.torres@acme.com
-demo1234
+admin@example.com
+password
 ```
 
 ## Autenticación simulada
