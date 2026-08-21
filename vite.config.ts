@@ -11,4 +11,9 @@ export default defineConfig({
       "@": path.resolve(import.meta.dirname, "./src"),
     },
   },
+  server: {
+    // Vite doesn't read PORT on its own; honor it when the harness assigns
+    // a different port than the preferred one in .claude/launch.json.
+    port: process.env.PORT ? Number(process.env.PORT) : 5173,
+  },
 })
