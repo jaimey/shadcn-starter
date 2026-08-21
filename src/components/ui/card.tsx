@@ -2,6 +2,22 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
+// El espaciado interno se monta como flex gap sobre Card, y un gap solo separa
+// hijos directos. Cuando un <form> envuelve los slots —lo natural cuando el
+// submit tiene que cubrir header, content y footer— el form pasa a ser el único
+// hijo directo y el gap deja de separar nada: header, content y footer quedan
+// pegados sin error ni warning. La variante le da a ese form el mismo flex
+// column con gap, así que el primitivo aguanta las dos formas de anidar
+// (<Card><form>…</form></Card> y <form><Card>…</Card></form>) sin convenciones
+// implícitas en el call site.
+//
+// El `:where()` es deliberado: deja la regla con especificidad 0, así que actúa
+// como default y cualquier clase de layout en el propio <form> (`grid`, `gap-1`)
+// sigue ganando. Sin él, la regla del padre las anularía en silencio.
+//
+// Solo cubre <form>. Otro wrapper (<div>, <fieldset>) reintroduce el problema;
+// la solución general sería mover el espaciado vertical del gap del padre al
+// padding de los slots, que es un cambio bastante más invasivo.
 function Card({
   className,
   size = "default",
@@ -12,7 +28,7 @@ function Card({
       data-slot="card"
       data-size={size}
       className={cn(
-        "group/card flex flex-col gap-(--card-spacing) overflow-hidden rounded-none bg-card py-(--card-spacing) text-xs/relaxed text-card-foreground ring-1 ring-foreground/10 [--card-spacing:--spacing(4)] has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(3)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-none *:[img:last-child]:rounded-none",
+        "group/card flex flex-col gap-(--card-spacing) overflow-hidden rounded-none bg-card py-(--card-spacing) text-xs/relaxed text-card-foreground ring-1 ring-foreground/10 [--card-spacing:--spacing(4)] has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(3)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-none *:[img:last-child]:rounded-none [:where(&>form)]:flex [:where(&>form)]:flex-col [:where(&>form)]:gap-(--card-spacing)",
         className
       )}
       {...props}

@@ -84,14 +84,7 @@ export function ProfilePage() {
       </div>
 
       <Card>
-        {/* `contents` saca al <form> del flujo de layout: Card espacia sus hijos
-            con `gap-4` en flex, y un <form> sin estilo entre medias se comía ese
-            gap al ser el único hijo directo. Sigue funcionando como formulario. */}
-        <form
-          onSubmit={personalForm.handleSubmit(onSubmitPersonal)}
-          noValidate
-          className="contents"
-        >
+        <form onSubmit={personalForm.handleSubmit(onSubmitPersonal)} noValidate>
           <CardHeader>
             <CardTitle>Datos personales</CardTitle>
             <CardDescription>Tu nombre visible en la aplicación.</CardDescription>
@@ -130,11 +123,7 @@ export function ProfilePage() {
       </Card>
 
       <Card>
-        <form
-          onSubmit={passwordForm.handleSubmit(onSubmitPassword)}
-          noValidate
-          className="contents"
-        >
+        <form onSubmit={passwordForm.handleSubmit(onSubmitPassword)} noValidate>
           <CardHeader>
             <CardTitle>Cambiar contraseña</CardTitle>
             <CardDescription>
