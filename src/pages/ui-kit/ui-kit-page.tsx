@@ -2,6 +2,7 @@ import { useEffect } from "react"
 import { useTheme, type Theme } from "@/components/theme-provider"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { TooltipProvider } from "@/components/ui/tooltip"
+import { ActionsSection } from "@/pages/ui-kit/sections/actions"
 import { FoundationsSection } from "@/pages/ui-kit/sections/foundations"
 import { UI_KIT_SECTIONS } from "@/pages/ui-kit/ui-kit-nav"
 
@@ -84,6 +85,7 @@ export function UiKitPage() {
 
           <main className="flex min-w-0 flex-1 flex-col gap-16 py-10">
             <FoundationsSection />
+            <ActionsSection />
           </main>
         </div>
       </div>
