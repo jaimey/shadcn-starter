@@ -4,6 +4,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { ActionsSection } from "@/pages/ui-kit/sections/actions"
 import { DataDisplaySection } from "@/pages/ui-kit/sections/data-display"
+import { FeedbackSection } from "@/pages/ui-kit/sections/feedback"
 import { FormsSection } from "@/pages/ui-kit/sections/forms"
 import { FoundationsSection } from "@/pages/ui-kit/sections/foundations"
 import { UI_KIT_SECTIONS } from "@/pages/ui-kit/ui-kit-nav"
@@ -90,6 +91,7 @@ export function UiKitPage() {
             <ActionsSection />
             <FormsSection />
             <DataDisplaySection />
+            <FeedbackSection />
           </main>
         </div>
       </div>
