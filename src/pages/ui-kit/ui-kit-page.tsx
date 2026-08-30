@@ -3,6 +3,7 @@ import { useTheme, type Theme } from "@/components/theme-provider"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { ActionsSection } from "@/pages/ui-kit/sections/actions"
+import { AusentesSection } from "@/pages/ui-kit/sections/ausentes"
 import { CompositeSection } from "@/pages/ui-kit/sections/composite"
 import { DataDisplaySection } from "@/pages/ui-kit/sections/data-display"
 import { FeedbackSection } from "@/pages/ui-kit/sections/feedback"
@@ -100,6 +101,7 @@ export function UiKitPage() {
             <OverlaysSection />
             <LayoutSection />
             <CompositeSection />
+            <AusentesSection />
           </main>
         </div>
       </div>

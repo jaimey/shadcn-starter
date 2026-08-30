@@ -13,7 +13,7 @@ export function KitSection({
   children: ReactNode
 }) {
   return (
-    <section id={id} className="scroll-mt-28">
+    <section id={id} className="scroll-mt-40 lg:scroll-mt-28">
       <div className="border-b pb-3">
         <h2 className="text-2xl font-semibold tracking-tight">{title}</h2>
         <p className="mt-1 text-sm text-muted-foreground">{description}</p>
@@ -35,7 +35,7 @@ export function KitComponent({
   children: ReactNode
 }) {
   return (
-    <article id={id} className="scroll-mt-28">
+    <article id={id} className="scroll-mt-40 lg:scroll-mt-28">
       <h3 className="text-base font-medium">{name}</h3>
       <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>
       <div className="mt-4 flex flex-col gap-6 border p-4">{children}</div>
