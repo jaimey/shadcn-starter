@@ -1,5 +1,6 @@
 import type { ReactNode } from "react"
 import { AlertDialog } from "@/components/ui/alert-dialog"
+import { Button } from "@/components/ui/button"
 import { Dialog } from "@/components/ui/dialog"
 import { Sheet } from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
@@ -27,6 +28,20 @@ export function AlertDialogSurface({ children }: { children: ReactNode }) {
       </div>
     </AlertDialog>
   )
+}
+
+// AlertDialogAction y AlertDialogCancel envuelven a AlertDialogPrimitive.Action
+// y .Cancel, que exigen el contexto de AlertDialogContent y lanzan fuera de él.
+// Bajo esa envoltura son exactamente un Button `default` y un Button `outline`
+// (src/components/ui/alert-dialog.tsx), así que la réplica los usa directamente:
+// lo único que se pierde es el cierre automático, que una réplica estática no
+// debe tener.
+export function AlertDialogActionReplica({ children }: { children: ReactNode }) {
+  return <Button variant="default">{children}</Button>
+}
+
+export function AlertDialogCancelReplica({ children }: { children: ReactNode }) {
+  return <Button variant="outline">{children}</Button>
 }
 
 // Superficie de SheetContent, copiada de src/components/ui/sheet.tsx. El borde

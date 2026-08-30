@@ -7,6 +7,7 @@ import { DataDisplaySection } from "@/pages/ui-kit/sections/data-display"
 import { FeedbackSection } from "@/pages/ui-kit/sections/feedback"
 import { FormsSection } from "@/pages/ui-kit/sections/forms"
 import { FoundationsSection } from "@/pages/ui-kit/sections/foundations"
+import { OverlaysSection } from "@/pages/ui-kit/sections/overlays"
 import { UI_KIT_SECTIONS } from "@/pages/ui-kit/ui-kit-nav"
 
 const THEME_OPTIONS: { value: Theme; label: string }[] = [
@@ -92,6 +93,7 @@ export function UiKitPage() {
             <FormsSection />
             <DataDisplaySection />
             <FeedbackSection />
+            <OverlaysSection />
           </main>
         </div>
       </div>

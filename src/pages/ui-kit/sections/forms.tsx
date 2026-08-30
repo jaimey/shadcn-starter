@@ -1,4 +1,4 @@
-import { Search } from "lucide-react"
+import { Check, Search } from "lucide-react"
 import {
   Field,
   FieldContent,
@@ -30,6 +30,12 @@ import {
   KitSection,
   KitSpecimen,
 } from "@/pages/ui-kit/kit"
+import {
+  MenuItemReplica,
+  MenuLabelReplica,
+  MenuSeparatorReplica,
+  MenuSurface,
+} from "@/pages/ui-kit/replicas"
 
 export function FormsSection() {
   return (
@@ -356,6 +362,24 @@ export function FormsSection() {
                   <SelectValue />
                 </SelectTrigger>
               </Select>
+            </KitSpecimen>
+          </KitRow>
+        </KitGroup>
+
+        <KitGroup label="Open">
+          <KitRow>
+            <KitSpecimen label="Open" className="w-48">
+              <MenuSurface minWidth="min-w-36">
+                <MenuLabelReplica>Estado</MenuLabelReplica>
+                <MenuSeparatorReplica />
+                <MenuItemReplica>Todos los estados</MenuItemReplica>
+                <MenuItemReplica className="pr-8">
+                  Activa
+                  <Check className="absolute right-2 size-4" />
+                </MenuItemReplica>
+                <MenuItemReplica>Revocada</MenuItemReplica>
+                <MenuItemReplica disabled>Expirada</MenuItemReplica>
+              </MenuSurface>
             </KitSpecimen>
           </KitRow>
         </KitGroup>
