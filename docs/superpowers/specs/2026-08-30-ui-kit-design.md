@@ -156,10 +156,21 @@ Cada uno de esos componentes se cataloga con dos especímenes:
   comprobar el comportamiento hace clic.
 - `KitSpecimen label="Open"` — una réplica inline, siempre presente en el DOM.
 
-La réplica reutiliza los subcomponentes reales (`DialogHeader`, `DialogTitle`,
-`DialogDescription`, `DialogFooter`, `DropdownMenuItem`, `SelectItem`…) dentro de un
-contenedor que reproduce **solo la superficie exterior** del componente, sin el
-`fixed` ni el posicionamiento del portal.
+La réplica reutiliza los subcomponentes reales dentro de un contenedor que reproduce
+**solo la superficie exterior** del componente, sin el `fixed` ni el posicionamiento
+del portal. Cuánto se puede reutilizar depende del contexto que exija cada primitivo
+de Radix, y hay dos regímenes:
+
+- Los que solo necesitan el contexto del **Root** — `DialogTitle`,
+  `DialogDescription`, `SheetTitle`, `SheetDescription`, `AlertDialogTitle`,
+  `AlertDialogDescription` — se reutilizan tal cual envueltos en `<Dialog open>`.
+  `DialogHeader`, `DialogFooter`, `SheetHeader`, `SheetFooter`, `AlertDialogHeader`,
+  `AlertDialogFooter` y `AlertDialogMedia` son divs planos y se reutilizan siempre.
+- Los que exigen el contexto del **Content** y lanzan fuera de él —
+  `DropdownMenuItem`, `SelectItem`, `AlertDialogCancel` y `AlertDialogAction` — no se
+  pueden reutilizar: su marcado se replica. En el caso de los dos de `AlertDialog` la
+  réplica es fiel al detalle, porque bajo la envoltura de Radix son exactamente un
+  `Button` `default` y un `Button` `outline`.
 
 Restricciones sobre la réplica, que la mantienen auditable:
 
