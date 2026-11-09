@@ -68,6 +68,15 @@ Para cambiar la paleta, edita esos valores siguiendo
 El tema por defecto es claro. El usuario puede cambiarlo desde *Perfil → Apariencia*,
 y la preferencia se guarda en `localStorage` bajo la clave `theme`.
 
+## Campos de texto en móvil
+
+El preset es compacto (`text-xs`, 12px), pero iOS Safari hace zoom al enfocar un
+`input`, `textarea` o `contenteditable` con fuente menor de 16px. `ui/input.tsx` y
+`ui/textarea.tsx` ya usan `text-base md:text-xs` (y `InputGroupInput` /
+`InputGroupTextarea` los envuelven). Si usas un `<textarea>` o `<input>` propio fuera
+de esos componentes (p. ej. el campo de un chat), ponle `text-base` en móvil y la
+talla compacta solo desde `md:` (`text-base md:text-sm`).
+
 ## Qué NO incluye
 
 Backend, base de datos, autenticación real, persistencia, tests e i18n. Es un punto de
